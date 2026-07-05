@@ -1,11 +1,28 @@
-# AuraFlow (Open Core)
+<p align="center">
+  <img src="docs/images/logo.png" alt="AuraFlow" width="440">
+</p>
+
+<p align="center">
+  <b>The open-source, AI-powered alternative to MindBody.</b><br>
+  Self-host your yoga, fitness &amp; wellness studio — scheduling, memberships,
+  payments, video, a voice-AI core, connectors, and a hash-chained audit log.
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="License: AGPLv3" src="https://img.shields.io/badge/license-AGPLv3-blue.svg"></a>
+  <img alt="Backend: FastAPI" src="https://img.shields.io/badge/backend-FastAPI-009688.svg">
+  <img alt="Frontend: Next.js" src="https://img.shields.io/badge/frontend-Next.js-000000.svg">
+  <a href="https://auraflow.fit"><img alt="Managed cloud" src="https://img.shields.io/badge/managed_cloud-auraflow.fit-7c3aed.svg"></a>
+</p>
+
+---
 
 AuraFlow is an open, self-hostable studio/wellness management platform — scheduling,
 memberships, billing, an AI/voice core, connectors, and a hash-chained audit log.
 
 **License:** [AGPLv3](LICENSE). Free to self-host (single tenant). Multi-tenant
 hosting, managed cloud, managed AI, and enterprise features are commercial — see
-[`open-core.md`](open-core.md).
+[`open-core.md`](open-core.md). **Managed cloud:** [auraflow.fit](https://auraflow.fit).
 
 ## What's here (free, AGPLv3)
 
