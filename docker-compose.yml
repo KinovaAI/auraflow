@@ -1,0 +1,308 @@
+# ================================================
+# AuraFlow — production Docker Compose
+# ================================================
+# This is THE compose file. Loads .env for all services.
+# Nginx runs on the host (not in Docker).
+#
+# Usage:
+#   docker compose build api                # rebuild a service
+#   docker compose up -d                    # start/refresh everything
+#   docker compose up -d api                # restart one service
+#   docker compose up -d --force-recreate   # recreate (re-reads .env)
+#   docker compose logs -f api              # tail logs
+#   docker compose down                     # stop all
+
+services:
+
+  # -- PostgreSQL --------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: auraflow_postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: auraflow
+      POSTGRES_USER: auraflow
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auraflow -d auraflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "2.0"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    networks:
+      - auraflow_network
+
+  # -- Redis ------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: auraflow_redis
+    restart: always
+    env_file:
+      - .env
+    command: ["sh", "-c", "redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --requirepass $$REDIS_PASSWORD"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    networks:
+      - auraflow_network
+
+  # -- FastAPI Backend --------------------------
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+      target: production
+    container_name: auraflow_api
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "2.0"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    networks:
+      - auraflow_network
+
+  # -- Next.js Frontend -------------------------
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      target: production
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.your-domain.com}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://app.your-domain.com}
+        NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}
+        NEXT_PUBLIC_FB_PIXEL_ID: ${NEXT_PUBLIC_FB_PIXEL_ID:-}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+    container_name: auraflow_web
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    networks:
+      - auraflow_network
+
+  # -- Celery Worker ----------------------------
+  celery_worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+      target: production
+    container_name: auraflow_celery_worker
+    restart: always
+    env_file:
+      - .env
+    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=4 -Q default,email,sms,payments,video
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.workers.celery_app inspect ping --timeout 10 2>/dev/null | grep -q pong || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    networks:
+      - auraflow_network
+
+  # -- Celery Beat (Scheduler) ------------------
+  celery_beat:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+      target: production
+    container_name: auraflow_celery_beat
+    restart: always
+    env_file:
+      - .env
+    command: celery -A app.workers.celery_app beat --loglevel=info --pidfile=/tmp/celerybeat.pid
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/celerybeat.pid && kill -0 $(cat /tmp/celerybeat.pid) 2>/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.25"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    networks:
+      - auraflow_network
+
+  # -- Celery Flower (Task Monitoring) ----------
+  flower:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+      target: production
+    container_name: auraflow_flower
+    restart: always
+    env_file:
+      - .env
+    command: celery -A app.workers.celery_app flower --port=5555 --basic-auth=admin:${FLOWER_PASSWORD:?set FLOWER_PASSWORD in .env}
+    healthcheck:
+      # Override the Dockerfile HEALTHCHECK (which targets :8000 because
+      # the image is shared with the api service). Flower runs on :5555.
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5555/healthcheck || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    ports:
+      - "127.0.0.1:5555:5555"
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.25"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    networks:
+      - auraflow_network
+
+  # -- Grafana Agent (metrics scrape → Grafana Cloud) --
+  grafana_agent:
+    image: grafana/agent:v0.43.4
+    container_name: auraflow_grafana_agent
+    restart: always
+    env_file:
+      - .env
+    command:
+      - -config.file=/etc/agent/agent.yaml
+      - -config.expand-env=true
+      - -server.http.address=0.0.0.0:12345
+      - -enable-features=integrations-next
+    volumes:
+      - ./infra/grafana-agent/agent.yaml:/etc/agent/agent.yaml:ro
+      - grafana_agent_data:/var/lib/agent
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      api:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.25"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    networks:
+      - auraflow_network
+
+volumes:
+  postgres_data:
+    name: auraflow_postgres_data
+  redis_data:
+    name: auraflow_redis_data
+  grafana_agent_data:
+    name: auraflow_grafana_agent_data
+
+networks:
+  auraflow_network:
+    name: auraflow_network
+    driver: bridge

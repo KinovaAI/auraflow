@@ -1,0 +1,65 @@
+# Grafana Agent — scrapes /metrics on auraflow_api and remote-writes to
+# Grafana Cloud Prometheus. Credentials come from env vars set in .env.prod:
+#   GRAFANA_PROM_URL   — https://prometheus-prod-XX-prod-XXX.grafana.net/api/prom/push
+#   GRAFANA_PROM_USER  — 6-digit instance ID
+#   GRAFANA_API_KEY    — glc_ access policy token with metrics:write scope
+#
+# Logs block is commented out until Don provides Loki URL + user. Uncomment +
+# redeploy the agent container once GRAFANA_LOKI_URL + GRAFANA_LOKI_USER are
+# populated.
+
+server:
+  log_level: warn
+
+metrics:
+  wal_directory: /var/lib/agent/wal
+  global:
+    scrape_interval: 30s
+    external_labels:
+      env: production
+      tenant: auraflow
+  configs:
+    - name: auraflow
+      scrape_configs:
+        # job_name matches the convention most community FastAPI dashboards
+        # expect (e.g. the "FastAPI Observability" family query
+        # up{job="fastapi"} and http_requests_total{job="fastapi",...}).
+        - job_name: fastapi
+          metrics_path: /metrics
+          static_configs:
+            - targets: ['auraflow_api:8000']
+              labels:
+                service: api
+                container: auraflow_api
+      remote_write:
+        - url: ${GRAFANA_PROM_URL}
+          basic_auth:
+            username: ${GRAFANA_PROM_USER}
+            password: ${GRAFANA_API_KEY}
+
+# Uncomment once Loki creds are provided:
+# logs:
+#   configs:
+#     - name: auraflow
+#       clients:
+#         - url: ${GRAFANA_LOKI_URL}
+#           basic_auth:
+#             username: ${GRAFANA_LOKI_USER}
+#             password: ${GRAFANA_API_KEY}
+#           external_labels:
+#             env: production
+#             service: auraflow
+#       positions:
+#         filename: /var/lib/agent/positions.yaml
+#       scrape_configs:
+#         - job_name: docker
+#           docker_sd_configs:
+#             - host: unix:///var/run/docker.sock
+#               refresh_interval: 30s
+#               filters:
+#                 - name: label
+#                   values: ["com.docker.compose.project=auraflow-platform"]
+#           relabel_configs:
+#             - source_labels: ['__meta_docker_container_name']
+#               regex: '/(.*)'
+#               target_label: 'container'

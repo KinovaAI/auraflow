@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /portal/
+Disallow: /api/
+Sitemap: https://auraflow.fit/sitemap.xml

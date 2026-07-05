@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuraFlow API Reference</title>
+<style>
+  :root {
+    --indigo-50: #eef2ff;
+    --indigo-100: #e0e7ff;
+    --indigo-200: #c7d2fe;
+    --indigo-300: #a5b4fc;
+    --indigo-400: #818cf8;
+    --indigo-500: #6366f1;
+    --indigo-600: #4f46e5;
+    --indigo-700: #4338ca;
+    --indigo-800: #3730a3;
+    --indigo-900: #312e81;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --green-100: #dcfce7;
+    --green-700: #15803d;
+    --red-100: #fee2e2;
+    --red-700: #b91c1c;
+    --yellow-100: #fef9c3;
+    --yellow-700: #a16207;
+    --blue-100: #dbeafe;
+    --blue-700: #1d4ed8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--gray-800);
+    line-height: 1.6;
+    background: var(--gray-50);
+  }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 280px;
+    background: var(--indigo-900);
+    color: #fff;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    padding: 0;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 24px 20px 16px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .sidebar-logo span { color: var(--indigo-300); }
+  .sidebar nav { padding: 12px 0; }
+  .sidebar nav a {
+    display: block;
+    padding: 7px 20px;
+    color: var(--indigo-200);
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .sidebar nav a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sidebar nav .section-title {
+    padding: 16px 20px 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--indigo-400);
+    font-weight: 600;
+  }
+  .main {
+    margin-left: 280px;
+    flex: 1;
+    padding: 40px 48px 80px;
+    max-width: 960px;
+  }
+
+  /* Typography */
+  h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; color: var(--gray-900); }
+  h2 {
+    font-size: 24px; font-weight: 700; margin-top: 48px; margin-bottom: 16px;
+    padding-top: 24px; border-top: 2px solid var(--indigo-100); color: var(--gray-900);
+  }
+  h3 { font-size: 18px; font-weight: 600; margin-top: 32px; margin-bottom: 12px; color: var(--gray-800); }
+  h4 { font-size: 15px; font-weight: 600; margin-top: 20px; margin-bottom: 8px; color: var(--gray-700); }
+  p { margin-bottom: 12px; color: var(--gray-700); }
+  ul, ol { margin: 0 0 12px 20px; color: var(--gray-700); }
+  li { margin-bottom: 4px; }
+
+  .subtitle { font-size: 16px; color: var(--gray-500); margin-bottom: 24px; }
+  .base-url {
+    display: inline-block;
+    background: var(--indigo-50);
+    border: 1px solid var(--indigo-200);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 14px;
+    color: var(--indigo-700);
+    margin-bottom: 16px;
+  }
+
+  /* Code */
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    background: var(--gray-100);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--indigo-700);
+  }
+  pre {
+    background: var(--gray-900);
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+  .json-key { color: #7dd3fc; }
+  .json-str { color: #86efac; }
+  .json-num { color: #fbbf24; }
+
+  /* Endpoint cards */
+  .endpoint {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+  .endpoint-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    background: var(--gray-50);
+  }
+  .method {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: monospace;
+    min-width: 60px;
+    text-align: center;
+  }
+  .method-get { background: var(--green-100); color: var(--green-700); }
+  .method-post { background: var(--blue-100); color: var(--blue-700); }
+  .method-put { background: var(--yellow-100); color: var(--yellow-700); }
+  .method-delete { background: var(--red-100); color: var(--red-700); }
+  .endpoint-path {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 14px;
+    color: var(--gray-800);
+    font-weight: 500;
+  }
+  .endpoint-body { padding: 16px; }
+  .endpoint-body p { font-size: 14px; }
+  .scope-badge {
+    display: inline-block;
+    background: var(--indigo-50);
+    color: var(--indigo-700);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
+    border: 1px solid var(--indigo-200);
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 14px;
+  }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--gray-100);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--gray-600);
+    border-bottom: 2px solid var(--gray-200);
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-700);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 24px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ─── Sidebar ──────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Aura<span>Flow</span> API</div>
+  <nav>
+    <div class="section-title">Getting Started</div>
+    <a href="#authentication">Authentication</a>
+    <a href="#rate-limits">Rate Limits</a>
+    <a href="#scopes">Scopes</a>
+    <a href="#errors">Error Responses</a>
+
+    <div class="section-title">Endpoints</div>
+    <a href="#api-keys">API Keys</a>
+    <a href="#members">Members</a>
+    <a href="#class-types">Class Types &amp; Sessions</a>
+    <a href="#bookings">Bookings</a>
+    <a href="#memberships">Memberships</a>
+    <a href="#instructors">Instructors</a>
+    <a href="#private-sessions">Private Sessions</a>
+    <a href="#courses">Courses &amp; Workshops</a>
+    <a href="#payments">Payments &amp; POS</a>
+    <a href="#gift-cards">Gift Cards</a>
+    <a href="#mailchimp-api">Mailchimp</a>
+    <a href="#social-media-api">Social Media</a>
+
+    <div class="section-title">Advanced</div>
+    <a href="#kiosk">Check-In Kiosk</a>
+    <a href="#webhooks">Webhooks</a>
+    <a href="#csv-export">CSV Export</a>
+    <a href="#integrations">Integration Examples</a>
+  </nav>
+</aside>
+
+<!-- ─── Main Content ─────────────────────────────────────────── -->
+<main class="main">
+
+<h1>AuraFlow API Reference</h1>
+<p class="subtitle">RESTful API for yoga studio management &mdash; members, bookings, payments, and more.</p>
+<div class="base-url">Base URL: https://your-domain.com/api/v1/external</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="authentication">Authentication</h2>
+
+<h3>Creating API Keys</h3>
+<p>API keys are created through the AuraFlow admin dashboard or via the API Keys endpoint (which uses JWT auth, not API key auth). Only users with the <strong>owner</strong> or <strong>admin</strong> role can create keys.</p>
+<p>When a key is created, the raw key string (prefixed <code>af_live_</code>) is returned <strong>exactly once</strong>. Store it securely; it cannot be retrieved again.</p>
+
+<h3>Using API Keys</h3>
+<p>Include the key in every request using one of two methods:</p>
+
+<h4>Authorization Header (recommended)</h4>
+<pre><code>Authorization: Bearer af_live_abc123def456...</code></pre>
+
+<h4>X-API-Key Header</h4>
+<pre><code>X-API-Key: af_live_abc123def456...</code></pre>
+
+<h4>curl Example</h4>
+<pre><code>curl -H "Authorization: Bearer af_live_abc123def456..." \
+     https://your-domain.com/api/v1/external/members</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="rate-limits">Rate Limits</h2>
+
+<p>Each API key has a configurable rate limit (requests per minute). The default is <strong>60 RPM</strong>. Rate limit info is returned in response headers:</p>
+
+<table>
+  <tr><th>Header</th><th>Description</th></tr>
+  <tr><td><code>X-RateLimit-Limit</code></td><td>Max requests per minute for this key</td></tr>
+  <tr><td><code>X-RateLimit-Remaining</code></td><td>Remaining requests in current window</td></tr>
+  <tr><td><code>X-RateLimit-Reset</code></td><td>Unix timestamp when the window resets</td></tr>
+</table>
+
+<p>When the limit is exceeded, the API returns:</p>
+<pre><code>HTTP/1.1 429 Too Many Requests
+Retry-After: 42
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1711180800
+
+{
+  "detail": "Rate limit exceeded"
+}</code></pre>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="scopes">Scopes</h2>
+
+<p>Each API key is assigned a set of scopes that control which resources it can access. Scope matching supports exact match, resource wildcards, and a global wildcard.</p>
+
+<table>
+  <tr><th>Scope</th><th>Grants Access To</th></tr>
+  <tr><td><code>members:read</code></td><td>List and get members, export CSV</td></tr>
+  <tr><td><code>members:write</code></td><td>Create, update, deactivate members</td></tr>
+  <tr><td><code>members:*</code></td><td>All member operations</td></tr>
+  <tr><td><code>scheduling:read</code></td><td>List class types, sessions, export CSV</td></tr>
+  <tr><td><code>bookings:read</code></td><td>List and get bookings, export CSV</td></tr>
+  <tr><td><code>bookings:write</code></td><td>Book classes, cancel, check in</td></tr>
+  <tr><td><code>bookings:*</code></td><td>All booking operations</td></tr>
+  <tr><td><code>memberships:read</code></td><td>List membership types and assignments</td></tr>
+  <tr><td><code>memberships:write</code></td><td>Assign, cancel, freeze memberships</td></tr>
+  <tr><td><code>memberships:*</code></td><td>All membership operations</td></tr>
+  <tr><td><code>instructors:read</code></td><td>List and get instructors</td></tr>
+  <tr><td><code>private_sessions:read</code></td><td>List private session services and bookings</td></tr>
+  <tr><td><code>private_sessions:write</code></td><td>Book and cancel private sessions</td></tr>
+  <tr><td><code>private_sessions:*</code></td><td>All private session operations</td></tr>
+  <tr><td><code>courses:read</code></td><td>List courses, get details</td></tr>
+  <tr><td><code>courses:write</code></td><td>Create courses, enroll members, cancel enrollments</td></tr>
+  <tr><td><code>courses:*</code></td><td>All course operations</td></tr>
+  <tr><td><code>payments:read</code></td><td>List transactions, products, export CSV</td></tr>
+  <tr><td><code>payments:write</code></td><td>Create payment intents, record sales</td></tr>
+  <tr><td><code>payments:*</code></td><td>All payment/POS operations</td></tr>
+  <tr><td><code>*:*</code></td><td>Full access to all resources</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="errors">Error Responses</h2>
+
+<p>The API returns standard HTTP status codes. Error responses include a JSON body with a <code>detail</code> field:</p>
+
+<table>
+  <tr><th>Status</th><th>Meaning</th></tr>
+  <tr><td>400</td><td>Bad request (invalid JSON or missing required fields)</td></tr>
+  <tr><td>401</td><td>Unauthorized (missing or invalid API key)</td></tr>
+  <tr><td>403</td><td>Forbidden (insufficient scopes)</td></tr>
+  <tr><td>404</td><td>Resource not found</td></tr>
+  <tr><td>422</td><td>Validation error (business rule violation)</td></tr>
+  <tr><td>429</td><td>Rate limit exceeded</td></tr>
+  <tr><td>500</td><td>Internal server error</td></tr>
+</table>
+
+<h4>Standard Error Body</h4>
+<pre><code>{
+  "detail": "Member not found"
+}</code></pre>
+
+<h4>Validation Error (with code)</h4>
+<pre><code>{
+  "detail": {
+    "code": "class_full",
+    "message": "Class is full and waitlist is full"
+  }
+}</code></pre>
+
+<p>Booking-specific error codes: <code>session_not_found</code>, <code>session_cancelled</code>, <code>already_booked</code>, <code>no_membership</code>, <code>waiver_required</code>, <code>class_full</code>.</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="api-keys">API Keys</h2>
+<p>Manage API keys for external integrations. These endpoints use <strong>JWT authentication</strong> (not API key auth) and require the <strong>owner</strong> or <strong>admin</strong> role.</p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/api-keys</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Create a new API key. The raw key is returned <strong>only once</strong> in the response.</p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "name": "BioAlignPro Integration",
+  "scopes": ["members:read", "private_sessions:*"],
+  "rate_limit_rpm": 120
+}</code></pre>
+    <h4>Response (201)</h4>
+<pre><code>{
+  "api_key": "af_live_abc123def456...",
+  "key_id": "550e8400-e29b-41d4-a716-446655440000",
+  "key_prefix": "af_live_abc1",
+  "name": "BioAlignPro Integration",
+  "scopes": ["members:read", "private_sessions:*"],
+  "rate_limit_rpm": 120,
+  "created_at": "2026-03-23T10:30:00+00:00"
+}</code></pre>
+    <h4>curl Example</h4>
+<pre><code>curl -X POST https://your-domain.com/api/v1/external/api-keys \
+  -H "Authorization: Bearer &lt;JWT_TOKEN&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"My Key","scopes":["members:read"],"rate_limit_rpm":60}'</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/api-keys</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List all API keys for the organization. Raw key values are never returned.</p>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "key_id": "550e8400-e29b-41d4-a716-446655440000",
+    "key_prefix": "af_live_abc1",
+    "name": "BioAlignPro Integration",
+    "scopes": ["members:read", "private_sessions:*"],
+    "rate_limit_rpm": 120,
+    "is_active": true,
+    "created_at": "2026-03-23T10:30:00+00:00",
+    "last_used_at": "2026-03-23T14:22:00+00:00"
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-delete">DELETE</span>
+    <span class="endpoint-path">/api-keys/{key_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Permanently revoke an API key. This action cannot be undone.</p>
+    <h4>Response</h4>
+    <p><code>204 No Content</code> on success. <code>404</code> if not found or already revoked.</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="members">Members</h2>
+<p>CRUD operations on member profiles. Scope: <span class="scope-badge">members:read</span> <span class="scope-badge">members:write</span></p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/members</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List members with optional filtering. Scope: <span class="scope-badge">members:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      <tr><td><code>search</code></td><td>string</td><td>null</td><td>Search by name, email, or phone</td></tr>
+      <tr><td><code>active_only</code></td><td>bool</td><td>true</td><td>Only return active members</td></tr>
+      <tr><td><code>limit</code></td><td>int</td><td>50</td><td>Max results (max 500)</td></tr>
+      <tr><td><code>offset</code></td><td>int</td><td>0</td><td>Pagination offset</td></tr>
+    </table>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "jane@example.com",
+    "phone": "+15591234567",
+    "date_of_birth": "1990-05-15",
+    "gender": "female",
+    "address_line1": "123 Main St",
+    "city": "Fresno",
+    "state": "CA",
+    "postal_code": "93701",
+    "source": "api",
+    "total_visits": 42,
+    "lifetime_revenue_cents": 150000,
+    "is_active": true,
+    "member_number": "MEM-0042",
+    "joined_at": "2025-01-15T08:00:00+00:00",
+    "last_visit_at": "2026-03-20T17:30:00+00:00"
+  }
+]</code></pre>
+    <h4>curl Example</h4>
+<pre><code>curl -H "Authorization: Bearer af_live_..." \
+     "https://your-domain.com/api/v1/external/members?search=jane&limit=10"</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/members/{member_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Get a single member by ID. Scope: <span class="scope-badge">members:read</span></p>
+    <h4>Response (200)</h4>
+    <p>Same member object as in the list response.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/members</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Create a new member. Fires <code>member.created</code> webhook. Scope: <span class="scope-badge">members:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "email": "jane@example.com",
+  "phone": "+15591234567",
+  "date_of_birth": "1990-05-15",
+  "gender": "female",
+  "address_line1": "123 Main St",
+  "city": "Fresno",
+  "state": "CA",
+  "postal_code": "93701",
+  "source": "api",
+  "referral_source": "BioAlignPro"
+}</code></pre>
+    <p>Required fields: <code>first_name</code>, <code>last_name</code>, <code>email</code>. All others are optional.</p>
+    <h4>Response (201)</h4>
+    <p>The created member object.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-put">PUT</span>
+    <span class="endpoint-path">/members/{member_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Update a member. Only include fields you want to change. Scope: <span class="scope-badge">members:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "phone": "+15599876543",
+  "city": "Clovis"
+}</code></pre>
+    <h4>Response (200)</h4>
+    <p>The updated member object.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-delete">DELETE</span>
+    <span class="endpoint-path">/members/{member_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Soft-delete (deactivate) a member. Fires <code>member.deactivated</code> webhook. Scope: <span class="scope-badge">members:write</span></p>
+    <h4>Response</h4>
+    <p><code>204 No Content</code> on success.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/members/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export members as a CSV file. Scope: <span class="scope-badge">members:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>search</code></td><td>string</td><td>Filter by name/email/phone</td></tr>
+      <tr><td><code>active_only</code></td><td>bool</td><td>Default true</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="class-types">Class Types &amp; Sessions</h2>
+<p>Read-only schedule data for displaying class schedules externally. Scope: <span class="scope-badge">scheduling:read</span></p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/class-types</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List all active class types (e.g., Vinyasa Flow, Restorative, Hot Yoga).</p>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "uuid",
+    "name": "Vinyasa Flow",
+    "description": "Dynamic flowing sequences linked with breath",
+    "duration_minutes": 60,
+    "capacity": 25,
+    "level": "all_levels",
+    "category": "yoga",
+    "color": "#6366f1"
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/sessions</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List scheduled class sessions with booking counts.</p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      <tr><td><code>date_from</code></td><td>string</td><td>today</td><td>ISO date/datetime start</td></tr>
+      <tr><td><code>date_to</code></td><td>string</td><td>+30 days</td><td>ISO date/datetime end</td></tr>
+      <tr><td><code>class_type</code></td><td>string</td><td>null</td><td>Filter by class type ID</td></tr>
+    </table>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "uuid",
+    "title": "Morning Vinyasa",
+    "class_type_name": "Vinyasa Flow",
+    "class_type_id": "uuid",
+    "instructor_name": "Sarah Johnson",
+    "instructor_id": "uuid",
+    "room_name": "Studio A",
+    "starts_at": "2026-03-24T09:00:00+00:00",
+    "ends_at": "2026-03-24T10:00:00+00:00",
+    "capacity": 25,
+    "booked_count": 18,
+    "waitlist_count": 0,
+    "status": "scheduled",
+    "is_virtual": false
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/sessions/{session_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Get detailed info about a specific session.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/sessions/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export sessions as a CSV file. Supports <code>date_from</code> and <code>date_to</code> parameters.</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="bookings">Bookings</h2>
+<p>Book members into class sessions, cancel bookings, and check in. Scope: <span class="scope-badge">bookings:read</span> <span class="scope-badge">bookings:write</span></p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/bookings</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Book a member into a class session. Validates membership eligibility, waiver status, and capacity. Fires <code>booking.created</code> webhook. Scope: <span class="scope-badge">bookings:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "member_id": "550e8400-e29b-41d4-a716-446655440000",
+  "session_id": "660e8400-e29b-41d4-a716-446655440001",
+  "source": "api",
+  "notes": "Booked via BioAlignPro"
+}</code></pre>
+    <h4>Response (201)</h4>
+<pre><code>{
+  "id": "uuid",
+  "member_id": "uuid",
+  "class_session_id": "uuid",
+  "status": "confirmed",
+  "source": "api",
+  "booked_at": "2026-03-23T10:00:00+00:00",
+  "waitlist_position": null,
+  "session_title": "Morning Vinyasa",
+  "starts_at": "2026-03-24T09:00:00+00:00",
+  "ends_at": "2026-03-24T10:00:00+00:00"
+}</code></pre>
+    <p>If the class is full, the booking will be <code>waitlisted</code> with a <code>waitlist_position</code>. If both class and waitlist are full, a 422 is returned.</p>
+    <h4>Error Codes</h4>
+    <table>
+      <tr><th>Code</th><th>Description</th></tr>
+      <tr><td><code>session_not_found</code></td><td>Session does not exist</td></tr>
+      <tr><td><code>session_cancelled</code></td><td>Session has been cancelled</td></tr>
+      <tr><td><code>already_booked</code></td><td>Member already booked for this session</td></tr>
+      <tr><td><code>no_membership</code></td><td>No active/eligible membership</td></tr>
+      <tr><td><code>waiver_required</code></td><td>Liability waiver not signed</td></tr>
+      <tr><td><code>class_full</code></td><td>Class and waitlist are both at capacity</td></tr>
+    </table>
+    <h4>curl Example</h4>
+<pre><code>curl -X POST https://your-domain.com/api/v1/external/bookings \
+  -H "Authorization: Bearer af_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"member_id":"uuid","session_id":"uuid","source":"api"}'</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/bookings</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List bookings with optional filters. Scope: <span class="scope-badge">bookings:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>member_id</code></td><td>string</td><td>Filter by member</td></tr>
+      <tr><td><code>session_id</code></td><td>string</td><td>Filter by class session</td></tr>
+      <tr><td><code>status</code></td><td>string</td><td>Filter by status (confirmed, waitlisted, attended, cancelled, no_show)</td></tr>
+      <tr><td><code>limit</code></td><td>int</td><td>Max 500, default 50</td></tr>
+      <tr><td><code>offset</code></td><td>int</td><td>Pagination offset</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/bookings/{booking_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Get a single booking with session and member details. Scope: <span class="scope-badge">bookings:read</span></p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-delete">DELETE</span>
+    <span class="endpoint-path">/bookings/{booking_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Cancel a booking. Automatically promotes the next member from the waitlist. Fires <code>booking.cancelled</code> webhook. Scope: <span class="scope-badge">bookings:write</span></p>
+    <h4>Response</h4>
+    <p><code>204 No Content</code> on success.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/bookings/{booking_id}/check-in</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Check a member in for their class. Updates visit stats and triggers milestone checks. Fires <code>booking.checked_in</code> webhook. Scope: <span class="scope-badge">bookings:write</span></p>
+    <h4>Response (200)</h4>
+    <p>The updated booking object with <code>status: "attended"</code> and <code>checked_in_at</code> timestamp.</p>
+    <h4>curl Example</h4>
+<pre><code>curl -X POST https://your-domain.com/api/v1/external/bookings/{id}/check-in \
+  -H "Authorization: Bearer af_live_..."</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/bookings/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export bookings as CSV. Supports <code>member_id</code>, <code>session_id</code>, and <code>status</code> filters. Scope: <span class="scope-badge">bookings:read</span></p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="memberships">Memberships</h2>
+<p>Manage membership types and member assignments. Scope: <span class="scope-badge">memberships:read</span> <span class="scope-badge">memberships:write</span></p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/membership-types</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List all active, public membership types. Scope: <span class="scope-badge">memberships:read</span></p>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "uuid",
+    "name": "Unlimited Monthly",
+    "description": "Unlimited classes per month",
+    "type": "unlimited",
+    "access_scope": "all_classes",
+    "class_count": null,
+    "price_cents": 12900,
+    "billing_period": "monthly",
+    "duration_days": null,
+    "auto_renew": true,
+    "is_public": true
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/member-memberships</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List member membership assignments. Scope: <span class="scope-badge">memberships:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>member_id</code></td><td>string</td><td>Filter by member (returns all if omitted)</td></tr>
+    </table>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "uuid",
+    "member_id": "uuid",
+    "membership_type_id": "uuid",
+    "type_name": "Unlimited Monthly",
+    "membership_type": "unlimited",
+    "status": "active",
+    "starts_at": "2026-01-01T00:00:00+00:00",
+    "ends_at": null,
+    "classes_remaining": null,
+    "frozen_at": null,
+    "frozen_until": null,
+    "cancelled_at": null,
+    "created_at": "2025-12-28T10:00:00+00:00",
+    "member_first_name": "Jane",
+    "member_last_name": "Doe"
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/member-memberships</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Assign a membership to a member. Fires <code>membership.assigned</code> webhook. Scope: <span class="scope-badge">memberships:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "member_id": "uuid",
+  "membership_type_id": "uuid",
+  "starts_at": "2026-04-01T00:00:00Z"
+}</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-put">PUT</span>
+    <span class="endpoint-path">/member-memberships/{membership_id}/cancel</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Cancel a membership. Fires <code>membership.cancelled</code> webhook. Scope: <span class="scope-badge">memberships:write</span></p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-put">PUT</span>
+    <span class="endpoint-path">/member-memberships/{membership_id}/freeze</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Freeze a membership (temporarily suspend billing and access). Fires <code>membership.frozen</code> webhook. Scope: <span class="scope-badge">memberships:write</span></p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/memberships/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export all member memberships as CSV. Scope: <span class="scope-badge">memberships:read</span></p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="instructors">Instructors</h2>
+<p>Read-only instructor directory. Scope: <span class="scope-badge">instructors:read</span></p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/instructors</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List active instructors.</p>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "uuid",
+    "display_name": "Sarah Johnson",
+    "bio": "RYT-500 certified with 10 years of experience...",
+    "photo_url": "https://...",
+    "specialties": ["vinyasa", "restorative"],
+    "certifications": ["RYT-500", "Yoga Therapy"],
+    "email": "sarah@example.com",
+    "phone": "+15591234567",
+    "color": "#6366f1",
+    "is_active": true
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/instructors/{instructor_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Get a single instructor by ID.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/instructors/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export instructors as CSV (includes inactive instructors).</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="private-sessions">Private Sessions</h2>
+<p>Manage 1-on-1 private session services and bookings. Critical for BioAlignPro integration. Scope: <span class="scope-badge">private_sessions:read</span> <span class="scope-badge">private_sessions:write</span></p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/private-session-services</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List available private session service types (e.g., "60-min Yoga Therapy", "90-min Deep Tissue"). Scope: <span class="scope-badge">private_sessions:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>instructor_id</code></td><td>string</td><td>Filter services by instructor</td></tr>
+    </table>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "uuid",
+    "instructor_id": "uuid",
+    "name": "60-min Yoga Therapy",
+    "description": "One-on-one therapeutic yoga session",
+    "duration_minutes": 60,
+    "price_cents": 9500,
+    "is_virtual": false,
+    "visibility": "members_only",
+    "is_active": true
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/private-sessions</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Book a private session. Checks for scheduling conflicts. Fires <code>private_session.created</code> webhook. Scope: <span class="scope-badge">private_sessions:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "member_id": "uuid",
+  "instructor_id": "uuid",
+  "service_id": "uuid",
+  "starts_at": "2026-03-25T14:00:00Z",
+  "intake_notes": "Focus on lower back pain management"
+}</code></pre>
+    <h4>Response (201)</h4>
+<pre><code>{
+  "id": "uuid",
+  "member_id": "uuid",
+  "instructor_id": "uuid",
+  "private_service_id": "uuid",
+  "service_name": "60-min Yoga Therapy",
+  "instructor_name": "Sarah Johnson",
+  "member_first_name": "Jane",
+  "member_last_name": "Doe",
+  "starts_at": "2026-03-25T14:00:00+00:00",
+  "ends_at": "2026-03-25T15:00:00+00:00",
+  "status": "pending",
+  "is_virtual": false,
+  "intake_notes": "Focus on lower back pain management",
+  "price_cents": 9500,
+  "created_at": "2026-03-23T10:00:00+00:00"
+}</code></pre>
+    <h4>curl Example</h4>
+<pre><code>curl -X POST https://your-domain.com/api/v1/external/private-sessions \
+  -H "Authorization: Bearer af_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "member_id": "uuid",
+    "instructor_id": "uuid",
+    "service_id": "uuid",
+    "starts_at": "2026-03-25T14:00:00Z"
+  }'</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/private-sessions</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List private session bookings. Scope: <span class="scope-badge">private_sessions:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>member_id</code></td><td>string</td><td>Filter by member</td></tr>
+      <tr><td><code>instructor_id</code></td><td>string</td><td>Filter by instructor</td></tr>
+      <tr><td><code>date_from</code></td><td>string</td><td>ISO date start</td></tr>
+      <tr><td><code>date_to</code></td><td>string</td><td>ISO date end</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/private-sessions/{booking_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Get a private session booking by ID. Scope: <span class="scope-badge">private_sessions:read</span></p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-delete">DELETE</span>
+    <span class="endpoint-path">/private-sessions/{booking_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Cancel a private session. Fires <code>private_session.cancelled</code> webhook. Scope: <span class="scope-badge">private_sessions:write</span></p>
+    <h4>Response</h4>
+    <p><code>204 No Content</code> on success.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/private-sessions/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export private sessions as CSV. Supports <code>member_id</code> and <code>instructor_id</code> filters. Scope: <span class="scope-badge">private_sessions:read</span></p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="courses">Courses, Workshops &amp; Trainings</h2>
+<p>Manage multi-session courses, workshops, teacher trainings, and retreats. Critical for MyYogi Academy integration. Scope: <span class="scope-badge">courses:read</span> <span class="scope-badge">courses:write</span></p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/courses</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List courses with optional type filter. Scope: <span class="scope-badge">courses:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>type</code></td><td>string</td><td>Filter: <code>workshop</code>, <code>teacher_training</code>, <code>retreat</code>, or <code>course</code></td></tr>
+    </table>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "uuid",
+    "title": "200-Hour Yoga Teacher Training",
+    "description": "Comprehensive YTT program...",
+    "type": "teacher_training",
+    "instructor_id": "uuid",
+    "instructor_name": "Sarah Johnson",
+    "price_cents": 350000,
+    "early_bird_price_cents": 295000,
+    "early_bird_deadline": "2026-04-01T00:00:00+00:00",
+    "capacity": 20,
+    "min_enrollment": 8,
+    "location": "Studio A",
+    "is_virtual": false,
+    "prerequisites": "Must have 1+ year of regular practice",
+    "registration_opens": "2026-03-01T00:00:00+00:00",
+    "registration_closes": "2026-05-15T00:00:00+00:00",
+    "starts_at": "2026-06-01T08:00:00+00:00",
+    "ends_at": "2026-08-31T17:00:00+00:00",
+    "status": "open",
+    "enrolled_count": 12,
+    "created_at": "2026-02-15T10:00:00+00:00"
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/courses/{course_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Get course detail including individual sessions. Scope: <span class="scope-badge">courses:read</span></p>
+    <h4>Response (200)</h4>
+    <p>Same as list item plus a <code>sessions</code> array:</p>
+<pre><code>{
+  "...course fields...",
+  "sessions": [
+    {
+      "id": "uuid",
+      "title": "Week 1: Foundations",
+      "session_number": 1,
+      "starts_at": "2026-06-01T08:00:00+00:00",
+      "ends_at": "2026-06-01T17:00:00+00:00",
+      "location": "Studio A",
+      "is_virtual": false
+    }
+  ]
+}</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/courses</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Create a new course. Fires <code>course.created</code> webhook. Scope: <span class="scope-badge">courses:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "title": "Arm Balance Workshop",
+  "description": "Master crow, side crow, and flying pigeon",
+  "type": "workshop",
+  "instructor_id": "uuid",
+  "price_cents": 5500,
+  "capacity": 15,
+  "starts_at": "2026-04-12T13:00:00Z",
+  "ends_at": "2026-04-12T16:00:00Z"
+}</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/courses/{course_id}/enroll</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Enroll a member in a course. Fires <code>course.enrollment.created</code> webhook. Scope: <span class="scope-badge">courses:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "member_id": "uuid"
+}</code></pre>
+    <h4>Response (201)</h4>
+<pre><code>{
+  "id": "uuid",
+  "course_id": "uuid",
+  "member_id": "uuid",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "email": "jane@example.com",
+  "status": "enrolled",
+  "paid_price_cents": 5500,
+  "enrolled_at": "2026-03-23T10:00:00+00:00"
+}</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-delete">DELETE</span>
+    <span class="endpoint-path">/courses/{course_id}/enrollments/{enrollment_id}</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Cancel/withdraw an enrollment. Fires <code>course.enrollment.cancelled</code> webhook. Scope: <span class="scope-badge">courses:write</span></p>
+    <h4>Response</h4>
+    <p><code>204 No Content</code> on success.</p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/courses/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export courses as CSV. Supports <code>type</code> filter. Scope: <span class="scope-badge">courses:read</span></p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="payments">Payments &amp; POS</h2>
+<p>Transaction history, Stripe payment intents, product catalog, and recording completed sales. Scope: <span class="scope-badge">payments:read</span> <span class="scope-badge">payments:write</span></p>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/transactions</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List POS transactions. Scope: <span class="scope-badge">payments:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>member_id</code></td><td>string</td><td>Filter by member</td></tr>
+      <tr><td><code>date_from</code></td><td>string</td><td>ISO date start</td></tr>
+      <tr><td><code>date_to</code></td><td>string</td><td>ISO date end</td></tr>
+      <tr><td><code>status</code></td><td>string</td><td>Filter by status</td></tr>
+      <tr><td><code>limit</code></td><td>int</td><td>Max 500, default 50</td></tr>
+      <tr><td><code>offset</code></td><td>int</td><td>Pagination offset</td></tr>
+    </table>
+    <h4>Response (200)</h4>
+<pre><code>[
+  {
+    "id": "uuid",
+    "member_id": "uuid",
+    "subtotal_cents": 2500,
+    "tax_cents": 219,
+    "total_cents": 2719,
+    "payment_method": "card",
+    "status": "completed",
+    "notes": null,
+    "created_at": "2026-03-23T10:00:00+00:00",
+    "member_first_name": "Jane",
+    "member_last_name": "Doe",
+    "line_items": [...]
+  }
+]</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/pos/payment-intent</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Create a Stripe PaymentIntent for collecting payment through an external website or app. Scope: <span class="scope-badge">payments:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "amount_cents": 5500,
+  "member_id": "uuid",
+  "description": "Arm Balance Workshop registration"
+}</code></pre>
+    <h4>Response (201)</h4>
+<pre><code>{
+  "client_secret": "pi_xxx_secret_xxx",
+  "payment_intent_id": "pi_xxx"
+}</code></pre>
+    <h4>curl Example</h4>
+<pre><code>curl -X POST https://your-domain.com/api/v1/external/pos/payment-intent \
+  -H "Authorization: Bearer af_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"amount_cents":5500,"member_id":"uuid","description":"Workshop"}'</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-post">POST</span>
+    <span class="endpoint-path">/pos/record-sale</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Record a completed POS transaction (after payment is collected). Scope: <span class="scope-badge">payments:write</span></p>
+    <h4>Request Body</h4>
+<pre><code>{
+  "items": [
+    {"product_id": "uuid", "quantity": 2},
+    {"product_id": "uuid", "quantity": 1}
+  ],
+  "payment_method": "card",
+  "member_id": "uuid",
+  "stripe_payment_id": "pi_xxx",
+  "notes": "Sold via external website"
+}</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/products</span>
+  </div>
+  <div class="endpoint-body">
+    <p>List products available for sale. Scope: <span class="scope-badge">payments:read</span></p>
+    <h4>Query Parameters</h4>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>category</code></td><td>string</td><td>Filter by category</td></tr>
+      <tr><td><code>search</code></td><td>string</td><td>Search by name</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/transactions/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export transactions as CSV. Supports <code>member_id</code>, <code>date_from</code>, <code>date_to</code> filters. Scope: <span class="scope-badge">payments:read</span></p>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method method-get">GET</span>
+    <span class="endpoint-path">/products/export.csv</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Export product catalog as CSV (includes inactive products). Scope: <span class="scope-badge">payments:read</span></p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="webhooks">Webhooks</h2>
+
+<p>AuraFlow can deliver real-time event notifications to your server via HTTP webhooks. Configure webhooks through the admin dashboard or the webhook configuration API.</p>
+
+<h3>How Webhooks Work</h3>
+<ol>
+  <li>Create a webhook configuration with a target URL and list of event types to subscribe to.</li>
+  <li>When a subscribed event occurs, AuraFlow sends an HTTP POST to your URL with the event payload.</li>
+  <li>Your server must respond with a 2xx status code within 10 seconds.</li>
+  <li>If delivery fails, AuraFlow retries with exponential back-off: 1s, 5s, 30s, 2min, 15min.</li>
+  <li>After all retries are exhausted, the delivery is moved to the dead letter queue.</li>
+</ol>
+
+<h3>Webhook Payload</h3>
+<p>Webhooks are delivered as HTTP POST requests with the following headers:</p>
+<table>
+  <tr><th>Header</th><th>Description</th></tr>
+  <tr><td><code>Content-Type</code></td><td><code>application/json</code></td></tr>
+  <tr><td><code>X-Webhook-Event</code></td><td>Event type (e.g., <code>member.created</code>)</td></tr>
+  <tr><td><code>X-Webhook-Signature</code></td><td>HMAC-SHA256 hex digest (if secret is configured)</td></tr>
+  <tr><td><code>User-Agent</code></td><td><code>AuraFlow-Webhook/1.0</code></td></tr>
+</table>
+
+<h3>Verifying Signatures</h3>
+<p>If you configure a signing secret, verify the signature by computing HMAC-SHA256 of the raw request body with your secret:</p>
+<pre><code># Python example
+import hmac, hashlib
+
+def verify_signature(body: bytes, secret: str, signature: str) -> bool:
+    expected = hmac.new(
+        secret.encode(), body, hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)</code></pre>
+
+<h3>Event Types</h3>
+<table>
+  <tr><th>Event</th><th>Trigger</th><th>Fired From</th></tr>
+  <tr><td><code>member.created</code></td><td>New member created</td><td>MemberService + External API</td></tr>
+  <tr><td><code>member.updated</code></td><td>Member profile updated</td><td>External API</td></tr>
+  <tr><td><code>member.deactivated</code></td><td>Member soft-deleted</td><td>External API</td></tr>
+  <tr><td><code>booking.created</code></td><td>Class booking made</td><td>External API</td></tr>
+  <tr><td><code>booking.confirmed</code></td><td>Booking confirmed (not waitlisted)</td><td>BookingService</td></tr>
+  <tr><td><code>booking.checked_in</code></td><td>Member checked in to class</td><td>BookingService + External API</td></tr>
+  <tr><td><code>booking.cancelled</code></td><td>Booking cancelled</td><td>External API</td></tr>
+  <tr><td><code>private_session.booked</code></td><td>Private session booked</td><td>PrivateSessionService</td></tr>
+  <tr><td><code>private_session.created</code></td><td>Private session created via API</td><td>External API</td></tr>
+  <tr><td><code>private_session.cancelled</code></td><td>Private session cancelled</td><td>External API</td></tr>
+  <tr><td><code>membership.assigned</code></td><td>Membership assigned to member</td><td>External API</td></tr>
+  <tr><td><code>membership.cancelled</code></td><td>Membership cancelled</td><td>External API</td></tr>
+  <tr><td><code>membership.frozen</code></td><td>Membership frozen</td><td>External API</td></tr>
+  <tr><td><code>course.created</code></td><td>New course/workshop created</td><td>External API</td></tr>
+  <tr><td><code>course.enrollment.created</code></td><td>Member enrolled in course</td><td>External API</td></tr>
+  <tr><td><code>course.enrollment.cancelled</code></td><td>Enrollment withdrawn</td><td>External API</td></tr>
+  <tr><td><code>payment.completed</code></td><td>Payment successfully processed</td><td>Stripe webhook handler</td></tr>
+  <tr><td><code>pos.sale.completed</code></td><td>POS sale recorded</td><td>POS Service</td></tr>
+</table>
+
+<p>Subscribe to all events by using the wildcard <code>*</code> in your configuration.</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="csv-export">CSV Export</h2>
+
+<p>Most list endpoints have a corresponding CSV export at <code>/&lt;resource&gt;/export.csv</code>. These return a file download with UTF-8 encoding and standard CSV formatting.</p>
+
+<h3>Available CSV Exports</h3>
+<table>
+  <tr><th>Endpoint</th><th>Scope</th></tr>
+  <tr><td><code>GET /members/export.csv</code></td><td><code>members:read</code></td></tr>
+  <tr><td><code>GET /sessions/export.csv</code></td><td><code>scheduling:read</code></td></tr>
+  <tr><td><code>GET /bookings/export.csv</code></td><td><code>bookings:read</code></td></tr>
+  <tr><td><code>GET /memberships/export.csv</code></td><td><code>memberships:read</code></td></tr>
+  <tr><td><code>GET /instructors/export.csv</code></td><td><code>instructors:read</code></td></tr>
+  <tr><td><code>GET /private-sessions/export.csv</code></td><td><code>private_sessions:read</code></td></tr>
+  <tr><td><code>GET /courses/export.csv</code></td><td><code>courses:read</code></td></tr>
+  <tr><td><code>GET /transactions/export.csv</code></td><td><code>payments:read</code></td></tr>
+  <tr><td><code>GET /products/export.csv</code></td><td><code>payments:read</code></td></tr>
+</table>
+
+<h3>Usage</h3>
+<pre><code>curl -H "Authorization: Bearer af_live_..." \
+     -o members.csv \
+     "https://your-domain.com/api/v1/external/members/export.csv?active_only=true"</code></pre>
+
+<p>CSV exports support the same query parameters as their JSON list counterparts. Maximum export limit is typically 10,000 rows.</p>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="integrations">Integration Examples</h2>
+
+<h3>BioAlignPro Integration</h3>
+<p>BioAlignPro uses the AuraFlow API to sync patient data and schedule private bodywork sessions.</p>
+
+<h4>Recommended Scopes</h4>
+<p><code>members:read</code>, <code>members:write</code>, <code>private_sessions:*</code>, <code>instructors:read</code></p>
+
+<h4>Workflow</h4>
+<ol>
+  <li><strong>Patient sync:</strong> When a new patient is created in BioAlignPro, create a matching member in AuraFlow:
+<pre><code>curl -X POST .../members \
+  -d '{"first_name":"Jane","last_name":"Doe","email":"jane@example.com","source":"api","referral_source":"BioAlignPro"}'</code></pre>
+  </li>
+  <li><strong>List available services:</strong> Fetch private session types for a specific instructor:
+<pre><code>curl .../private-session-services?instructor_id=uuid</code></pre>
+  </li>
+  <li><strong>Book a session:</strong> Book a private session for the patient:
+<pre><code>curl -X POST .../private-sessions \
+  -d '{"member_id":"uuid","instructor_id":"uuid","service_id":"uuid","starts_at":"2026-03-25T14:00:00Z","intake_notes":"Lower back pain"}'</code></pre>
+  </li>
+  <li><strong>Webhook listener:</strong> Subscribe to <code>private_session.booked</code> and <code>booking.checked_in</code> to update patient records in BioAlignPro when sessions are created or attended.</li>
+</ol>
+
+<h3>MyYogi Academy Integration</h3>
+<p>MyYogi Academy uses the API to display workshops and teacher trainings, and handle enrollments.</p>
+
+<h4>Recommended Scopes</h4>
+<p><code>courses:*</code>, <code>members:read</code>, <code>members:write</code>, <code>payments:write</code></p>
+
+<h4>Workflow</h4>
+<ol>
+  <li><strong>Display catalog:</strong> Fetch courses filtered by type:
+<pre><code>curl ".../courses?type=teacher_training"</code></pre>
+  </li>
+  <li><strong>Show details:</strong> Get full course info with sessions:
+<pre><code>curl .../courses/{course_id}</code></pre>
+  </li>
+  <li><strong>Register student:</strong> Create a member (if new), then enroll:
+<pre><code>curl -X POST .../members -d '{"first_name":"Alex","last_name":"Kim","email":"alex@example.com"}'
+curl -X POST .../courses/{id}/enroll -d '{"member_id":"uuid"}'</code></pre>
+  </li>
+  <li><strong>Collect payment:</strong> Create a payment intent, then confirm on the frontend with Stripe.js:
+<pre><code>curl -X POST .../pos/payment-intent \
+  -d '{"amount_cents":350000,"member_id":"uuid","description":"200hr YTT"}'</code></pre>
+  </li>
+  <li><strong>Webhook listener:</strong> Subscribe to <code>course.enrollment.created</code> to send welcome emails from MyYogi Academy's system.</li>
+</ol>
+
+<h3>Mailchimp Sync</h3>
+<p>Export your member list to sync with Mailchimp audiences for email marketing.</p>
+
+<h4>Workflow</h4>
+<ol>
+  <li><strong>Export members:</strong> Download the CSV export:
+<pre><code>curl -o members.csv -H "Authorization: Bearer af_live_..." \
+     ".../members/export.csv?active_only=true"</code></pre>
+  </li>
+  <li><strong>Webhook-driven sync:</strong> Subscribe to <code>member.created</code> events and add new members to your Mailchimp audience in real time via the Mailchimp API.</li>
+  <li><strong>Segment by activity:</strong> Use the <code>total_visits</code> and <code>last_visit_at</code> fields to build segments for re-engagement campaigns.</li>
+</ol>
+
+<!-- ─── Gift Cards ───────────────────────────────────────────── -->
+<h2 id="gift-cards">Gift Cards</h2>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/gift-cards</code> <span class="scope">Scope: payments:write</span></div>
+<p>Create a gift card. Optionally email it to the recipient.</p>
+<pre><code>curl -X POST -H "Authorization: Bearer af_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"amount_cents": 5000, "recipient_email": "friend@example.com", "recipient_name": "Jane", "message": "Enjoy some yoga!"}' \
+  ".../gift-cards"</code></pre>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/gift-cards/check-balance</code> <span class="scope">Scope: payments:read</span></div>
+<p>Check a gift card balance by code.</p>
+<pre><code>curl -X POST -H "Authorization: Bearer af_live_..." \
+  -d '{"code": "A7K2-M9P4-X3N8-Q5R1"}' ".../gift-cards/check-balance"</code></pre>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/gift-cards/redeem</code> <span class="scope">Scope: payments:write</span></div>
+<p>Redeem a gift card (full or partial balance).</p>
+<pre><code>curl -X POST -H "Authorization: Bearer af_live_..." \
+  -d '{"code": "A7K2-M9P4-X3N8-Q5R1", "amount_cents": 2500}' \
+  ".../gift-cards/redeem"</code></pre>
+
+<!-- ─── Mailchimp API ──────────────────────────────────────────── -->
+<h2 id="mailchimp-api">Mailchimp Integration</h2>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/external/mailchimp/connect</code></div>
+<p>Connect your Mailchimp account. Requires JWT auth (owner/admin).</p>
+<pre><code>curl -X POST -H "Authorization: Bearer jwt_token..." \
+  -d '{"api_key": "xxxxxxxx-us21", "list_id": "a1b2c3d4e5"}' \
+  ".../external/mailchimp/connect"</code></pre>
+
+<div class="endpoint"><span class="method get">GET</span> <code>/external/mailchimp/status</code></div>
+<p>Check Mailchimp connection status and list info.</p>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/external/mailchimp/sync-all</code></div>
+<p>Trigger bulk sync of all active members to your Mailchimp audience.</p>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/external/mailchimp/disconnect</code></div>
+<p>Disconnect Mailchimp integration.</p>
+
+<p><strong>Auto-sync:</strong> New members are automatically added to your Mailchimp audience when created via any method (dashboard, API, import, or member self-registration).</p>
+
+<!-- ─── Social Media API ──────────────────────────────────────── -->
+<h2 id="social-media-api">Social Media</h2>
+<p>Per-studio Facebook and Instagram management. Each studio connects their own accounts.</p>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/social/connect/facebook</code></div>
+<p>Connect a Facebook Page. Requires an access token and page ID from Facebook OAuth.</p>
+
+<div class="endpoint"><span class="method get">GET</span> <code>/social/status</code></div>
+<p>Get Facebook/Instagram connection status.</p>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/social/posts</code></div>
+<p>Create a post (draft or scheduled). Specify platform (facebook/instagram), content, and optional media URLs.</p>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/social/posts/generate</code></div>
+<p>AI generates a post based on today&rsquo;s schedule, upcoming events, and studio context.</p>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/social/posts/{id}/publish</code></div>
+<p>Publish a draft or scheduled post to Facebook/Instagram.</p>
+
+<div class="endpoint"><span class="method get">GET</span> <code>/social/messages</code></div>
+<p>List DMs and comments. AI auto-responds to common questions.</p>
+
+<div class="endpoint"><span class="method post">POST</span> <code>/social/messages/{id}/respond</code></div>
+<p>Send a manual response to a message or comment.</p>
+
+<div class="endpoint"><span class="method get">GET</span> <code>/social/stats</code></div>
+<p>Engagement stats: post count, likes, comments, shares, DM count.</p>
+
+<!-- ─── Check-In Kiosk ──────────────────────────────────────── -->
+<h2 id="kiosk">Check-In Kiosk</h2>
+<p>Build a custom check-in kiosk for your studio website or iPad using these API endpoints.</p>
+
+<h3>Built-in Kiosk</h3>
+<p>AuraFlow includes a ready-to-use kiosk at <code>/dashboard/check-in/kiosk</code>. Log in as an instructor, and it auto-detects the current class with a tap-to-check-in roster. Add to iPad Home Screen for a full-screen app experience.</p>
+
+<h3>Custom Kiosk via API</h3>
+<p>Build your own check-in experience using these endpoints:</p>
+
+<h4>1. Get today&rsquo;s classes</h4>
+<pre><code>curl -H "Authorization: Bearer af_live_..." \
+  ".../sessions?date_from=2026-04-01&amp;date_to=2026-04-01"</code></pre>
+
+<h4>2. Get the roster for a class</h4>
+<pre><code>curl -H "Authorization: Bearer af_live_..." \
+  ".../bookings?session_id=SESSION_UUID"</code></pre>
+<p>Response includes each booking with <code>member_name</code>, <code>status</code> (confirmed/attended/no_show), and <code>booking_id</code>.</p>
+
+<h4>3. Check in a member</h4>
+<pre><code>curl -X POST -H "Authorization: Bearer af_live_..." \
+  ".../bookings/BOOKING_UUID/check-in"</code></pre>
+<p>Returns the updated booking with <code>status: "attended"</code>.</p>
+
+<h4>4. Register a drop-in</h4>
+<pre><code>curl -X POST -H "Authorization: Bearer af_live_..." \
+  -d '{"member_id": "MEMBER_UUID", "session_id": "SESSION_UUID"}' \
+  ".../bookings"</code></pre>
+<p>Creates a booking, then check them in with step 3.</p>
+
+<h4>5. Search members (for drop-in lookup)</h4>
+<pre><code>curl -H "Authorization: Bearer af_live_..." \
+  ".../members?search=john&amp;limit=10"</code></pre>
+
+<h4>6. Create a new member (walk-in guest)</h4>
+<pre><code>curl -X POST -H "Authorization: Bearer af_live_..." \
+  -d '{"first_name": "John", "last_name": "Doe", "email": "john@example.com"}' \
+  ".../members"</code></pre>
+
+<h4>7. Voice check-in (text-based)</h4>
+<pre><code>curl -X POST -H "Authorization: Bearer jwt_token..." \
+  -d '{"transcript": "checking in John Smith"}' \
+  "https://api.auraflow.fit/api/v1/voice/checkin/text"</code></pre>
+<p>Returns matched member and check-in result. Use browser SpeechRecognition on the frontend, send the transcript to this endpoint.</p>
+
+<h3>Example Kiosk Flow</h3>
+<ol>
+  <li>Fetch today&rsquo;s sessions, auto-select the current/next class</li>
+  <li>Display roster as tappable cards</li>
+  <li>Tap card &rarr; call check-in endpoint &rarr; card turns green</li>
+  <li>&ldquo;Drop-In&rdquo; button &rarr; search members or create guest &rarr; book + check in</li>
+  <li>&ldquo;Voice&rdquo; button &rarr; use SpeechRecognition API &rarr; send transcript to voice endpoint</li>
+  <li>Auto-refresh roster every 10 seconds</li>
+</ol>
+
+
+</main>
+</div>
+</body>
+</html>

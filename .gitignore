@@ -1,0 +1,75 @@
+# Environment
+.env
+.env.local
+.env.production
+.env.prod
+.env.*.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.cover
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.npm
+.eslintcache
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Airflow
+airflow.cfg
+airflow.db
+airflow-webserver.pid
+standalone_admin_password.txt
+
+# Celery
+celerybeat-schedule
+
+# Local dev
+.local/
+tmp/
+temp/
+
+# One-off migration scripts (may contain credentials)
+run_*.py
+.env.prod.*
+.claude/
+
+# DB backups (large + sensitive)
+backups/
+
+# Local working backups of config files
+*.bak.*

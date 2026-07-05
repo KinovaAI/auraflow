@@ -1,0 +1,67 @@
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = [
+    "alembic/versions",
+    "tests/fixtures",
+    "venv",
+    ".venv",
+]
+
+[tool.ruff.lint]
+# Baseline rule set — lenient enough to pass on the current codebase,
+# can be tightened (D, ANN, SIM, TCH) once baseline is clean.
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "B",    # bugbear (loop var binding, mutable defaults, etc.)
+    "UP",   # pyupgrade
+    "C4",   # comprehensions
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "E501",    # line too long — 120 limit above, ruff format handles it
+    "B008",    # function call in default arg (FastAPI uses Depends() there)
+    "RUF012",  # mutable class attrs need ClassVar — noisy on Pydantic models
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["B011", "F401", "F841"]
+"alembic/versions/*.py" = ["E501", "F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.12"
+# Start lenient; tighten per-module after baseline clean.
+ignore_missing_imports = true
+follow_imports = "silent"
+warn_return_any = false
+warn_unused_ignores = true
+no_implicit_optional = true
+check_untyped_defs = false
+disallow_untyped_defs = false
+strict_optional = true
+plugins = ["pydantic.mypy"]
+exclude = [
+    "alembic/versions",
+    "tests/fixtures",
+    "venv",
+    ".venv",
+]
+
+[[tool.mypy.overrides]]
+module = "alembic.*"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+# Coverage threshold — starts low, walks up over time.
+# Raise to 50 once recent-bug regression tests land (Phase 0.11).
+addopts = "--tb=short -q"
