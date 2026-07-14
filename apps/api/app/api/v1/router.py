@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     auth,
+    accounting,
     users,
     organizations,
     staff,
@@ -112,6 +113,13 @@ api_router.include_router(
     staff.router,
     prefix="/staff",
     tags=["Staff Management"]
+)
+
+# ── Accounting (per-tenant bookkeeping + tax export) ─────────────────────────
+api_router.include_router(
+    accounting.router,
+    prefix="/accounting",
+    tags=["Accounting"]
 )
 
 # ── Hiring / Applicant Tracking + Onboarding (W-4) ────────────────────────────

@@ -148,6 +148,23 @@ class TenantProvisioningService:
                     "SELECT af_global.add_online_membership_trial_fields($1)",
                     schema_name,
                 )
+                # 4k. Add per-tenant Accounting module tables
+                await db.execute(
+                    "SELECT af_global.add_accounting_tables_to_schema($1)",
+                    schema_name,
+                )
+                await db.execute(
+                    "SELECT af_global.add_accounting_income_link_to_schema($1)",
+                    schema_name,
+                )
+                await db.execute(
+                    "SELECT af_global.add_acct_vendor_rules_to_schema($1)",
+                    schema_name,
+                )
+                await db.execute(
+                    "SELECT af_global.add_acct_owner_draws_to_schema($1)",
+                    schema_name,
+                )
                 logger.info(
                     "Tenant schema provisioned",
                     schema=schema_name,

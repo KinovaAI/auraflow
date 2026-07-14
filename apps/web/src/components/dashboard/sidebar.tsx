@@ -28,6 +28,7 @@ import {
   Mic,
   Inbox,
   Banknote,
+  Calculator,
   UserPlus,
   Briefcase,
 } from "lucide-react";
@@ -85,6 +86,7 @@ export const navigationGroups: NavGroup[] = [
       { name: "Point of Sale", href: "/dashboard/pos", icon: ShoppingCart, permissionKeys: ["retail.checkout_transaction", "retail.view_products"] },
       { name: "Inventory", href: "/dashboard/inventory", icon: Package, permissionKeys: ["retail.view_inventory", "retail.adjust_inventory"] },
       { name: "Payroll", href: "/dashboard/payroll", icon: Banknote, permissionKeys: ["payroll.view_runs", "payroll.view_timesheets", "payroll.view_own_timesheet", "payroll.view_report"] },
+      { name: "Accounting", href: "/dashboard/accounting", icon: Calculator, permissionKeys: ["accounting.view"] },
     ],
   },
   {

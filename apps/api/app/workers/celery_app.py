@@ -72,6 +72,7 @@ app.conf.update(
 
 
         "app.workers.tasks.recurring_membership_renewals",
+        "app.workers.tasks.accounting_bank_sync",
         "app.workers.tasks.scheduled_campaigns",
         "app.workers.tasks.scheduled_course_price",
         "app.workers.tasks.scheduled_sms_campaigns",
@@ -127,6 +128,13 @@ app.conf.update(
         'contract-reminders': {
             'task': 'contracts.send_reminders',
             'schedule': crontab(hour=15, minute=37),  # 8:37 AM Pacific daily
+        },
+        "accounting-nightly-sync": {
+            # Nightly full books sync: income + Mercury bank + payouts + reconcile.
+            # Tenants without a Mercury key no-op; the bank side activates
+            # automatically once the key is saved in Settings. No manual bank sync.
+            "task": "app.workers.tasks.accounting_bank_sync.run_bank_sync",
+            "schedule": crontab(hour=9, minute=30),  # 2:30 AM Pacific daily
         },
         "send-class-reminders-every-15-min": {
             "task": "app.workers.tasks.reminders.send_class_reminders",

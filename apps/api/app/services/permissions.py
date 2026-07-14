@@ -39,6 +39,14 @@ from app.core.logging import logger
 # in require_permission(...) on the endpoint.
 
 ALL_PERMISSIONS: list[str] = [
+    # Accounting & tax
+    "accounting.view",
+    "accounting.manage_settings",
+    "accounting.manage_transactions",
+    "accounting.manage_members",
+    "accounting.reconcile",
+    "accounting.sync",
+    "accounting.export",
     # AI assistant
     "ai.analyze_retention",
     "ai.analyze_schedule",

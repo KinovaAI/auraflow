@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 // don't need a UI change.
 
 const AREA_LABELS: Record<string, string> = {
+  accounting: "Accounting & Tax",
   ai: "AI Assistant",
   analytics: "Analytics & Reports",
   audit: "Audit Log",
