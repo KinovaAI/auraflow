@@ -4,8 +4,9 @@
 
 <p align="center">
   <b>The open-source, AI-powered alternative to MindBody.</b><br>
-  Self-host your yoga, fitness &amp; wellness studio — scheduling, memberships,
-  payments, video, a voice-AI core, connectors, and a hash-chained audit log.
+  An AI backend that monitors membership &amp; churn and helps grow your studio —
+  scheduling, memberships, payments, POS &amp; inventory, accounting/tax, video,
+  a voice-AI core, marketing &amp; ads, connectors, and a hash-chained audit log.
 </p>
 
 <p align="center">
@@ -17,8 +18,10 @@
 
 ---
 
-AuraFlow is an open, self-hostable studio/wellness management platform — scheduling,
-memberships, billing, an AI/voice core, connectors, and a hash-chained audit log.
+AuraFlow is an open, self-hostable studio/wellness management platform — an AI backend
+that monitors membership & churn and helps grow your business: scheduling, memberships,
+billing, POS & inventory, accounting/tax, an AI/voice core, marketing & ads, connectors,
+and a hash-chained audit log.
 
 **License:** [AGPLv3](LICENSE). Free to self-host (single tenant). Multi-tenant
 hosting, managed cloud, managed AI, and enterprise features are commercial — see
@@ -28,6 +31,11 @@ hosting, managed cloud, managed AI, and enterprise features are commercial — s
 
 - Dynamic-DB engine + schema provisioning, single-tenant isolation
 - Scheduling, memberships, bookings, waivers
+- **Retail POS + inventory** — sell product, track stock
+- **Accounting & tax** — per-tenant books: bank auto-import, AuraFlow income sync,
+  processor fees, reconciliation, P&L / Schedule C / K-1, TurboTax `.txf` + PDF export
+- **AI growth engine** — churn / at-risk monitoring, member insights, smart scheduling,
+  marketing & ads automation
 - AI + voice core — **bring your own API key**
 - Base UI + component system, connector framework + build-your-own connectors
 - Basic OIDC SSO, hash-chained audit log
