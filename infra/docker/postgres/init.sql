@@ -1,10 +1,8 @@
 -- ============================================================================
 -- AuraFlow (open core (AGPLv3, public)) — SINGLE-FILE database build. No migrations.
 -- The Postgres entrypoint runs this once; it builds the ENTIRE schema from scratch:
---   * af_global platform tables + functions
---   * a COMPLETE provision_tenant_schema() that creates ALL tenant tables
---   * config seed rows
---   * a working demo tenant  (login: owner@demo.example.com / demo1234)
+-- af_global tables + functions, a COMPLETE provision_tenant_schema() (every tenant
+-- table), config seed, and a demo tenant (login: owner@demo.example.com / demo1234).
 -- Regenerated 2026-07-15 from the live production schema.
 -- ============================================================================
 
@@ -639,7 +637,7 @@ SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
--- provision_tenant_schema (COMPLETE — every tenant table)
+-- provision_tenant_schema (COMPLETE)
 CREATE OR REPLACE FUNCTION af_global.provision_tenant_schema(p_schema TEXT, p_org_id UUID)
 RETURNS VOID AS $fn$
 BEGIN
@@ -875,6 +873,7 @@ BEGIN
     dynamic_price_cents integer,
     is_community boolean DEFAULT false,
     modality text DEFAULT 'in_studio'::text NOT NULL,
+    booked_count integer DEFAULT 0,
     CONSTRAINT chk_af_tenant_recording_status CHECK (((recording_status)::text = ANY ((ARRAY['none'::character varying, 'recording'::character varying, 'processing'::character varying, 'ready'::character varying, 'published'::character varying, 'failed'::character varying])::text[]))),
     CONSTRAINT class_sessions_modality_check CHECK ((modality = ANY (ARRAY['in_studio'::text, 'virtual'::text, 'hybrid'::text]))),
     CONSTRAINT class_sessions_status_check CHECK (((status)::text = ANY ((ARRAY['scheduled'::character varying, 'in_progress'::character varying, 'completed'::character varying, 'cancelled'::character varying])::text[])))
@@ -1910,6 +1909,10 @@ BEGIN
     sender_id uuid,
     sender_phone character varying(20),
     actions_taken jsonb DEFAULT '[]'::jsonb,
+    channel character varying(50),
+    subject text,
+    body text,
+    ai_suggested_action text,
     CONSTRAINT resolution_requests_category_check CHECK (((category)::text = ANY ((ARRAY['billing'::character varying, 'scheduling'::character varying, 'membership'::character varying, 'technical'::character varying, 'general'::character varying])::text[]))),
     CONSTRAINT resolution_requests_status_check CHECK (((status)::text = ANY ((ARRAY['open'::character varying, 'ai_processing'::character varying, 'awaiting_approval'::character varying, 'resolved'::character varying, 'escalated'::character varying])::text[])))
 )$prov$, p_schema);
@@ -2278,6 +2281,7 @@ BEGIN
     sort_order integer DEFAULT 0,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    metadata jsonb,
     CONSTRAINT videos_source_check CHECK (((source)::text = ANY ((ARRAY['youtube'::character varying, 'mux'::character varying, 'manual'::character varying, 'zoom_recording'::character varying])::text[]))),
     CONSTRAINT videos_visibility_check CHECK (((visibility)::text = ANY ((ARRAY['all_members'::character varying, 'specific_memberships'::character varying, 'staff_only'::character varying, 'hidden'::character varying])::text[])))
 )$prov$, p_schema);

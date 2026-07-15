@@ -422,7 +422,7 @@ class StripeConnectorImporter:
                                             INSERT INTO member_memberships
                                                 (id, member_id, membership_type_id,
                                                  stripe_subscription_id, status,
-                                                 start_date, current_period_end)
+                                                 starts_at, current_period_end)
                                             VALUES ($1, $2, $3, $4, 'active', $5, $6)
                                             ON CONFLICT DO NOTHING
                                             """,

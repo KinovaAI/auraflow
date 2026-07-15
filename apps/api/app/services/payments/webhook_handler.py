@@ -435,8 +435,8 @@ class StripeWebhookHandler:
                         if not mt_row:
                             mt_id = str(_uuid.uuid4())
                             await db.execute(
-                                """INSERT INTO membership_types (id, name, membership_type, price_cents, class_count, billing_period, auto_renew, is_active, visibility)
-                                   VALUES ($1, $2, 'class_pack', $3, $4, NULL, FALSE, TRUE, 'unlisted')""",
+                                """INSERT INTO membership_types (id, name, type, price_cents, class_count, billing_period, auto_renew, is_active, is_public)
+                                   VALUES ($1, $2, 'class_pack', $3, $4, NULL, FALSE, TRUE, FALSE)""",
                                 mt_id, f"{svc_name} Credits", amount_total, sessions_count,
                             )
                         else:
