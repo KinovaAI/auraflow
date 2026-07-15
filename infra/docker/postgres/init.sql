@@ -5,8 +5,7 @@
 --   * a COMPLETE provision_tenant_schema() that creates ALL tenant tables
 --   * config seed rows
 --   * a working demo tenant  (login: owner@demo.example.com / demo1234)
--- Regenerated 2026-07-15 from the live production schema. Recreate a dead server:
---   docker compose up -d   (this file builds the DB; restore data from a backup if needed)
+-- Regenerated 2026-07-15 from the live production schema.
 -- ============================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -15,8 +14,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS btree_gin;
 CREATE SCHEMA IF NOT EXISTS af_global;
 
-
--- ── af_global functions ─────────────────────────────────────────────
+-- af_global functions
 CREATE FUNCTION af_global.add_accounting_income_link_to_schema(p_schema_name text) RETURNS void
     LANGUAGE plpgsql
     AS $_$
@@ -641,7 +639,7 @@ SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
--- ── provision_tenant_schema (COMPLETE — every tenant table) ─────────
+-- provision_tenant_schema (COMPLETE — every tenant table)
 CREATE OR REPLACE FUNCTION af_global.provision_tenant_schema(p_schema TEXT, p_org_id UUID)
 RETURNS VOID AS $fn$
 BEGIN
@@ -1936,6 +1934,7 @@ BEGIN
     source text DEFAULT 'internal'::text,
     gmb_review_id text,
     gmb_metadata jsonb,
+    reviewer_name character varying(255),
     CONSTRAINT reviews_rating_check CHECK (((rating >= 1) AND (rating <= 5))),
     CONSTRAINT reviews_sentiment_check CHECK (((sentiment)::text = ANY ((ARRAY['positive'::character varying, 'neutral'::character varying, 'negative'::character varying])::text[])))
 )$prov$, p_schema);
@@ -3122,7 +3121,7 @@ BEGIN
 END;
 $fn$ LANGUAGE plpgsql;
 
--- ── af_global tables ────────────────────────────────────────────────
+-- af_global tables
 CREATE TABLE af_global.ai_token_usage (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     organization_id uuid NOT NULL,
@@ -3241,7 +3240,9 @@ CREATE TABLE af_global.organization_integrations (
     connected_at timestamp with time zone DEFAULT now(),
     disconnected_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    access_token_encrypted bytea,
+    refresh_token_encrypted bytea
 );
 CREATE TABLE af_global.organization_users (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
@@ -3706,7 +3707,7 @@ CREATE TABLE af_global.users (
     phone_enc bytea
 );
 
--- ── af_global constraints ───────────────────────────────────────────
+-- af_global constraints
 ALTER TABLE ONLY af_global.ai_token_usage
     ADD CONSTRAINT ai_token_usage_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY af_global.api_key_routing
@@ -3735,6 +3736,8 @@ ALTER TABLE ONLY af_global.membership_templates
     ADD CONSTRAINT membership_templates_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY af_global.membership_templates
     ADD CONSTRAINT membership_templates_template_key_key UNIQUE (template_key);
+ALTER TABLE ONLY af_global.organization_integrations
+    ADD CONSTRAINT organization_integrations_org_type_uniq UNIQUE (organization_id, integration_type);
 ALTER TABLE ONLY af_global.organization_integrations
     ADD CONSTRAINT organization_integrations_organization_id_integration_type_key UNIQUE (organization_id, integration_type);
 ALTER TABLE ONLY af_global.organization_integrations
@@ -3854,7 +3857,7 @@ ALTER TABLE ONLY af_global.user_permissions
 ALTER TABLE ONLY af_global.user_permissions
     ADD CONSTRAINT user_permissions_user_id_fkey FOREIGN KEY (user_id) REFERENCES af_global.users(id) ON DELETE CASCADE;
 
--- ── af_global indexes ───────────────────────────────────────────────
+-- af_global indexes
 CREATE UNIQUE INDEX email_suppressions_email_uidx ON af_global.email_suppressions USING btree (lower(email));
 CREATE INDEX idx_ai_agent_log_created ON af_global.platform_ai_agent_log USING btree (created_at DESC);
 CREATE INDEX idx_ai_agent_log_type ON af_global.platform_ai_agent_log USING btree (agent_type);
@@ -3914,7 +3917,7 @@ CREATE INDEX idx_webhook_events_processed_at ON af_global.processed_webhook_even
 CREATE INDEX pos_checkout_index_expires_at_idx ON af_global.pos_checkout_index USING btree (expires_at);
 CREATE INDEX square_pos_devices_org_idx ON af_global.square_pos_devices USING btree (organization_id);
 
--- ── af_global triggers ──────────────────────────────────────────────
+-- af_global triggers
 CREATE TRIGGER organizations_updated_at BEFORE UPDATE ON af_global.organizations FOR EACH ROW EXECUTE FUNCTION af_global.update_updated_at();
 CREATE TRIGGER trg_platform_ads_config_updated_at BEFORE UPDATE ON af_global.platform_ads_config FOR EACH ROW EXECUTE FUNCTION af_global.update_updated_at();
 CREATE TRIGGER trg_platform_backup_schedule_updated_at BEFORE UPDATE ON af_global.platform_backup_schedule FOR EACH ROW EXECUTE FUNCTION af_global.update_updated_at();
@@ -3928,7 +3931,7 @@ CREATE TRIGGER trg_platform_social_posts_updated_at BEFORE UPDATE ON af_global.p
 CREATE TRIGGER user_permissions_updated_at BEFORE UPDATE ON af_global.user_permissions FOR EACH ROW EXECUTE FUNCTION af_global.update_updated_at();
 CREATE TRIGGER users_updated_at BEFORE UPDATE ON af_global.users FOR EACH ROW EXECUTE FUNCTION af_global.update_updated_at();
 
--- ── config seed ─────────────────────────────────────────────────────
+-- config seed
 INSERT INTO af_global.membership_templates (id, template_key, name, description, type, access_scope, suggested_price_cents, billing_period, class_count, duration_days, auto_renew, freeze_allowed, sort_order, created_at) VALUES ('35e671da-fdd7-4c7b-8790-f19d55841035', 'unlimited_in_studio_monthly', 'Unlimited In-Studio (Monthly)', 'Unlimited in-person classes at the studio', 'unlimited', 'in_studio', 14900, 'monthly', NULL, NULL, true, true, 1, '2026-02-27 21:33:21.8733+00');
 INSERT INTO af_global.membership_templates (id, template_key, name, description, type, access_scope, suggested_price_cents, billing_period, class_count, duration_days, auto_renew, freeze_allowed, sort_order, created_at) VALUES ('332b035c-275e-4195-bd87-1d87d2cfbc47', 'unlimited_in_studio_yearly', 'Unlimited In-Studio (Yearly)', 'Unlimited in-person classes — annual plan with savings', 'unlimited', 'in_studio', 149000, 'yearly', NULL, NULL, true, true, 2, '2026-02-27 21:33:21.8733+00');
 INSERT INTO af_global.membership_templates (id, template_key, name, description, type, access_scope, suggested_price_cents, billing_period, class_count, duration_days, auto_renew, freeze_allowed, sort_order, created_at) VALUES ('c32fe8ef-7510-43cb-a36e-80c2f48aa9b2', 'unlimited_online_monthly', 'Unlimited Online (Monthly)', 'Unlimited livestream and on-demand video access', 'unlimited', 'online', 9900, 'monthly', NULL, NULL, true, true, 3, '2026-02-27 21:33:21.8733+00');
@@ -3951,7 +3954,7 @@ INSERT INTO af_global.platform_settings (key, value, description, updated_at, up
 INSERT INTO af_global.platform_settings (key, value, description, updated_at, updated_by) VALUES ('ai_token_stripe_price_id', 'null', 'Stripe Price ID for metered AI usage', '2026-03-05 18:37:12.933623+00', NULL);
 INSERT INTO af_global.platform_settings (key, value, description, updated_at, updated_by) VALUES ('ai_token_free_tier', '1000000', 'Free tokens per organization per month', '2026-03-16 05:50:44.209049+00', NULL);
 
--- ── demo tenant + login ─────────────────────────────────────────────
+-- demo tenant + login
 DO $demo$
 DECLARE v_org UUID := public.uuid_generate_v4();
         v_user UUID := public.uuid_generate_v4();
