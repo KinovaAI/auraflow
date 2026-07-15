@@ -16,6 +16,10 @@
   <a href="https://auraflow.fit"><img alt="Managed cloud" src="https://img.shields.io/badge/managed_cloud-auraflow.fit-7c3aed.svg"></a>
 </p>
 
+<p align="center">
+  <img src="docs/images/dashboard.png" alt="AuraFlow studio dashboard" width="900">
+</p>
+
 ---
 
 AuraFlow is an open, self-hostable studio/wellness management platform — an AI backend
