@@ -1,4 +1,22 @@
--- ============================================================================
+"""baseline — complete AuraFlow open-core schema (squashed)
+
+Single squashed baseline replacing the prior 71-migration chain. The full schema
+also ships as infra/docker/postgres/init.sql (executed by the Postgres entrypoint
+for docker installs, which then run `alembic stamp head`). This migration embeds
+the same schema so `alembic upgrade head` builds it from an empty database too.
+
+Revision ID: baseline_squash_2026_07
+Revises:
+Create Date: 2026-07-14
+"""
+from alembic import op
+
+revision = "baseline_squash_2026_07"
+down_revision = None
+branch_labels = None
+depends_on = None
+
+SCHEMA_SQL = r"""-- ============================================================================
 -- AuraFlow (open core) — complete baseline schema.
 -- Single-file install: the Postgres entrypoint runs this, then `alembic stamp head`.
 -- Regenerated 2026-07-14 from the full migration chain (squashed to one baseline).
@@ -8069,3 +8087,26 @@ ALTER TABLE ONLY af_tenant_sunrise_yoga.workshop_contracts
 --
 
 
+
+SET search_path TO public;
+"""
+
+
+def upgrade():
+    op.execute(SCHEMA_SQL)
+
+
+def downgrade():
+    op.execute(
+        """
+        DO $$
+        DECLARE s TEXT;
+        BEGIN
+            FOR s IN SELECT schema_name FROM information_schema.schemata
+                     WHERE schema_name LIKE 'af_tenant_%' OR schema_name = 'af_global'
+            LOOP
+                EXECUTE format('DROP SCHEMA IF EXISTS %I CASCADE', s);
+            END LOOP;
+        END $$;
+        """
+    )

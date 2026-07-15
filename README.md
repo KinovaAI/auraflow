@@ -56,12 +56,18 @@ docker compose up -d --build                  # Postgres runs init.sql, which bu
 docker compose exec api alembic stamp head    # mark that schema as current (init.sql IS the baseline)
 ```
 
-Open http://localhost:3000. The demo studio is `demo` (schema `af_tenant_demo`).
+Open http://localhost:3000 and sign in to the seeded demo studio **Sunrise Yoga
+Studio** (schema `af_tenant_sunrise_yoga`):
+
+- **Email:** `owner@sunrise-yoga.example.com`
+- **Password:** `demo1234`
 
 > **First install uses `alembic stamp head`, not `upgrade head`** — `init.sql`
-> builds the full baseline schema, so you only need to *mark* it current. After
-> that, future schema changes ship as Alembic migrations you apply the normal way:
-> `docker compose exec api alembic upgrade head`.
+> builds the full baseline schema (a single squashed baseline), so you only need
+> to *mark* it current. After that, future schema changes ship as Alembic
+> migrations you apply the normal way: `docker compose exec api alembic upgrade head`.
+> (`alembic upgrade head` on an empty database also works — the baseline migration
+> embeds the same schema — but the demo `docker compose` flow uses `stamp head`.)
 
 ## Contributing
 
