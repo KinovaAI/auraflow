@@ -73,3 +73,6 @@ backups/
 
 # Local working backups of config files
 *.bak.*
+
+# Local launch checklist (not for the public repo)
+LAUNCH-TODO.local.md
