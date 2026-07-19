@@ -583,7 +583,7 @@ class SchedulingService:
                 SELECT cs.*, ct.name as class_type_name, ct.color,
                        i.display_name as instructor_name,
                        r.name as room_name,
-                       (SELECT COUNT(*) FROM bookings WHERE class_session_id = cs.id AND status = 'confirmed') as booked_count,
+                       (SELECT COUNT(*) FROM bookings WHERE class_session_id = cs.id AND status NOT IN ('cancelled', 'waitlisted')) as booked_count,
                        (SELECT COUNT(*) FROM bookings WHERE class_session_id = cs.id AND status = 'waitlisted') as waitlist_count
                 FROM class_sessions cs
                 LEFT JOIN class_types ct ON ct.id = cs.class_type_id
@@ -607,7 +607,7 @@ class SchedulingService:
             SELECT cs.*, ct.name as class_type_name, ct.color,
                    i.display_name as instructor_name,
                    r.name as room_name,
-                   (SELECT COUNT(*) FROM bookings WHERE class_session_id = cs.id AND status = 'confirmed') as booked_count,
+                   (SELECT COUNT(*) FROM bookings WHERE class_session_id = cs.id AND status NOT IN ('cancelled', 'waitlisted')) as booked_count,
                    (SELECT COUNT(*) FROM bookings WHERE class_session_id = cs.id AND status = 'waitlisted') as waitlist_count
             FROM class_sessions cs
             LEFT JOIN class_types ct ON ct.id = cs.class_type_id
